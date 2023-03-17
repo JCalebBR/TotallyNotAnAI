@@ -35,7 +35,7 @@ module.exports = {
         //generate id for this interaction
         const id = interaction.id;
         const input = interaction.options.getString("prompt");
-        const quantity = interaction.options.getInteger("quantity") ?? 4;
+        const quantity = interaction.options.getInteger("quantity") ?? 1;
         const size = interaction.options.getString("size") ?? "256x256";
         const ephemeral = interaction.options.getBoolean("private") ?? false;
 
@@ -58,7 +58,7 @@ module.exports = {
                         .setColor(0x9C1218)
                         .setTitle(`> ${input.slice(0, 256)}`)
                         .setAuthor({ name: `DALL-E` })
-                        .setDescription(quantity > 4 ? `More than 4 images were requested. Only the first 4 are shown.\nTo view the rest, use the arrows on either side of your screen when previewing any image` : ``)
+                        .setDescription(quantity > 4 ? `Here are your images!\n PS: More than 4 images were requested. Only the first 4 are shown.\nTo view the rest, use the arrows on either side of your screen when previewing any image` : quantity > 1 ? `Here are your images!` : `Here is your image!`)
                         .setURL("https://openai.com/blog/dall-e/")
                         // @ts-ignore
                         .setImage(response.data.data[i].url)
@@ -69,6 +69,7 @@ module.exports = {
             interaction.followUp({ embeds: embeds });
         }).catch(error => {
             log.error(`ID #${id} | ${error}`);
+            console.error(error);
             interaction.followUp({ content: `An error occurred: \`${error}\``, ephemeral: ephemeral });
         });
     },
