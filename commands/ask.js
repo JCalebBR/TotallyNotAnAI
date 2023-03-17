@@ -23,7 +23,7 @@ module.exports = {
                     // { name: "GPT-4", value: "gpt-4" },
                     // { name: "GPT-4 (March 14th)", value: "gpt-4-0314" },
                     { name: "GPT-3.5 Turbo (March 1st)", value: "gpt-3.5-turbo-0301" },
-                    { name: "GPT-3.5 Turbo", value: "gpt-3.5-turbo" },
+                    { name: "GPT-3.5 Turbo (Latest)", value: "gpt-3.5-turbo" },
                 ))
         .addBooleanOption(option =>
             option.setName("private")

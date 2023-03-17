@@ -40,7 +40,7 @@
         "handle-callback-err": "off",
         "indent": [
             "error",
-            "space"
+            "4"
         ],
         "keyword-spacing": "error",
         "max-nested-callbacks": [
