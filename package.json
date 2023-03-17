@@ -1,14 +1,14 @@
 {
-  "name": "chatgpt",
-  "version": "1.0.0",
+  "name": "totallynotanai",
+  "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "totally.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "update": "node deploy-commands.js",
     "dev": "node . | pino-pretty -i pid,hostname -t 'yyyy-mm-dd HH:MM:ss'"
   },
   "keywords": [],
-  "author": "",
+  "author": "JCaleb2014",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.8.0",
