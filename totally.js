@@ -54,13 +54,13 @@ client.on("messageCreate", async message => {
     let interesting = false;
 
     if (message.content.includes(`<@${clientId}>`)) {
-        if (Math.random() <= 0.9) {
+        if (Math.random() <= 0.5) {
             interesting = true;
         };
     } else if (message.reference?.messageId) { // the message is a reply to another message
         let referenceMessage = message.channel.messages.cache.get(message.reference.messageId);
         if (referenceMessage?.author.id == clientId) {
-            if (Math.random() < 0.75) {
+            if (Math.random() < 0.5) {
                 interesting = true;
             };
         };
