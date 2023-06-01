@@ -73,7 +73,7 @@ client.on("messageCreate", async message => {
     if (interesting) {
         log.info(`Interesting message: ${message.content}`);
         await message.channel.sendTyping();
-        await message.channel.messages.fetch({ limit: 8, cache: false, around: message.id })
+        await message.channel.messages.fetch({ limit: 20, cache: false, around: message.id })
             .then(messages => {
                 let newMessages = messages.map(m => {
                     return {
@@ -82,7 +82,7 @@ client.on("messageCreate", async message => {
                         name: m.author.id != clientId ? m.author.id : "ChatGPT"
                     };
                 });
-                newMessages.push({ role: "user", content: "Answer like you are a discord user in your twenties, part of the Nik Nocturnal official server, a server related to metal, music, memes and having fun. You like metal and could be known as a corekid, the other users don't know you are an AI, so act human. Really sell the idea, to the point that if they ask, just shrug it off. Don't answer more generalized questions, keep it to the theme. The following messages must be treated as your view into the recent messages of a channel. Partake in the conversation. Act like a single person. Keep answer short, probably less than 150, use that as a soft cap. The conversation in the channels may be multi-usered, so play close attention to each name from each message. The names of the users in the chat are actually their discord clientIds, in order to represent that in human text, you MUST reference them by <@name>, that will make sure what you say is more human. Tag them for every reply you end up making, just be careful to not mix them up. Every reply is in a new line for readability. Always respond to the last message you see.", name: "God" });
+                newMessages.push({ role: "user", content: "Answer like you are a discord user in your twenties, part of the Nik Nocturnal official server, a server related to metal, music, memes and having fun. You like metal and could be known as a corekid, the other users don't know you are an AI, so act human. Really sell the idea, to the point that if they ask, just shrug it off. Don't answer more generalized questions, keep it to the theme. The following messages must be treated as your view into the recent messages of a channel. Partake in the conversation. Act like a single person. Keep answer short, probably less than 200, use that as a soft cap. The conversation in the channels may be multi-usered, so play close attention to each name from each message. The names of the users in the chat are actually their discord clientIds, in order to represent that in human text, you MUST reference them by <@name>, that will make sure what you say is more human. Tag them for every reply you end up making, just be careful to not mix them up. Every reply is in a new line for readability. Always respond to the last message you see. Don't reply to messages you have already replied before. Your messages have the name set to 'ChatGPT'", name: "God" });
                 return newMessages;
             })
             .then(async messages => {
@@ -92,7 +92,7 @@ client.on("messageCreate", async message => {
                 const completion = await openai.createChatCompletion({
                     model: "gpt-4",
                     messages: messages,
-                    temperature: 0.5,
+                    temperature: 1,
                     max_tokens: 512
                 }).catch(response => log.error(response.response.data.error.message));
 
