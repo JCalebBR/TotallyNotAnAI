@@ -1,3 +1,3 @@
-const pino = require('pino');
-const log = pino();
-module.exports = log;
+// @ts-ignore
+const pino = require('pino')();
+module.exports = pino;

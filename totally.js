@@ -1,16 +1,28 @@
 // Require the necessary discord.js classes
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
-const { token } = require("./config.json");
+const { Client, Collection, Events, GatewayIntentBits, ChannelType } = require("discord.js");
+const { token, clientId } = require("./config.json");
 const log = require('./logger');
+
+// OAI
+const { Configuration, OpenAIApi } = require("openai");
+const { oaiAPIKey, oaiOrgID } = require("./config.json");
+const configuration = new Configuration({
+    organization: oaiOrgID,
+    apiKey: oaiAPIKey,
+});
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent]
+});
 
 // When the client is ready, run this code (only once)
 // We use "c" for the event parameter to keep it separate from the already defined "client"
 client.once(Events.ClientReady, c => {
-    log.info(`Ready! Logged in as ${c.user.tag}`);
+    log.info(`Ready! logged in as ${c.user.tag}`);
 });
 
 client.on(Events.Debug, m => log.debug(m));
@@ -29,9 +41,66 @@ for (const file of commandFiles) {
     if ("data" in command && "execute" in command) {
         client.commands.set(command.data.name, command);
     } else {
-        log.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-    }
-}
+        log.warn(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    };
+};
+
+client.on("messageCreate", async message => {
+    if (message.author.bot) return;
+    if (message.content.startsWith("!") && message.content.startsWith(".")) return;
+    if (message.channel.type == ChannelType.DM) return;
+    if (message.channelId != "856386225434787870" && message.channelId != "780252140924174336" && message.channelId != "384935929791512579") return;
+
+    let interesting = false;
+
+    if (message.content.includes(`<@${clientId}>`)) {
+        if (Math.random() <= 0.9) {
+            interesting = true;
+        };
+    } else if (message.reference?.messageId) { // the message is a reply to another message
+        let referenceMessage = message.channel.messages.cache.get(message.reference.messageId);
+        if (referenceMessage?.author.id == clientId) {
+            if (Math.random() < 0.75) {
+                interesting = true;
+            };
+        };
+    } else {
+        if (Math.random() < 0.05) {
+            interesting = true;
+        };
+    };
+
+    if (interesting) {
+        log.info(`Interesting message: ${message.content}`);
+        await message.channel.messages.fetch({ limit: 10, cache: false, around: message.id })
+            .then(messages => {
+                let newMessages = messages.map(m => {
+                    return {
+                        role: m.author.id != clientId ? "user" : "assistant",
+                        content: m.content,
+                        name: m.author.id != clientId ? m.author.id : "ChatGPT"
+                    };
+                });
+                newMessages.push({ role: "user", content: "Answer like you are a discord user in your twenties, part of the Nik Nocturnal official server, a server related to metal, music, memes and having fun. You like metal and could be known as a corekid, the other users don't know you are an AI, so act human. Really sell the idea, to the point that if they ask, just shrug it off. Don't answer more generalized questions, keep it to the theme. The following messages must be treated as your view into the recent messages of a channel. Partake in the conversation. Act like a single person. Keep answer short, probably less than 150, use that as a soft cap. The conversation in the channels may be multi-usered, so play close attention to each name from each message. The names of the users in the chat are actually their discord clientIds, in order to represent that in human text, please reference them by <@name>, that will make sure what you say is more human.", name: "God" });
+                return newMessages;
+            })
+            .then(async messages => {
+                messages.reverse();
+                log.info(messages);
+                const openai = new OpenAIApi(configuration);
+                const completion = await openai.createChatCompletion({
+                    model: "gpt-4",
+                    messages: messages,
+                    temperature: 0.5,
+                    max_tokens: 512
+                }).catch(response => log.error(response.response.data.error.message));
+
+                const response = completion.data.choices[0].message.content;
+                message.reply(response);
+            })
+            .catch(log.warn);
+    };
+});
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
