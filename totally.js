@@ -72,6 +72,7 @@ client.on("messageCreate", async message => {
 
     if (interesting) {
         log.info(`Interesting message: ${message.content}`);
+        await message.channel.sendTyping();
         await message.channel.messages.fetch({ limit: 10, cache: false, around: message.id })
             .then(messages => {
                 let newMessages = messages.map(m => {
