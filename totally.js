@@ -54,7 +54,9 @@ client.on("messageCreate", async message => {
 
     let interesting = false;
 
-    if (message.content.includes(`<@${clientId}>`)) {
+    if (message.author.id == "104342613892562944") {
+        interesting = true;
+    } else if (message.content.includes(`<@${clientId}>`)) {
         if (Math.random() <= 0.5) {
             interesting = true;
         };
@@ -94,7 +96,7 @@ client.on("messageCreate", async message => {
                     model: "gpt-4",
                     messages: messages,
                     temperature: 1,
-                    max_tokens: 512
+                    max_tokens: 1024
                 }).catch(response => log.error(response.response.data.error.message));
 
                 let response = completion.data.choices[0].message.content;
