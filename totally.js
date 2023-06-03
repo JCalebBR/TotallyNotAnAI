@@ -99,13 +99,22 @@ client.on("messageCreate", async message => {
 
                 let response = completion.data.choices[0].message.content;
                 log.trace("Pre-Regex: " + response)
-                const matches = response.matchAll(/[0-9]{18}/gm);
-                const uniqueMatches = [...new Set(matches)].forEach(match => {
-                    log.trace("Regex:" + match);
-                    const tag = "<@" + match + ">";
-                    log.trace("Regex Replacement:" + tag);
+                const wrongMatches = response.matchAll(/<@[0-9]{18}>/gm);
+                const uWrongMatches = [...new Set(wrongMatches)].forEach(match => {
+                    log.trace("Wrong ID:" + match);
+                    // remove first two characters and last character from match
+                    const tag = match.slice(2, -1);
+                    log.trace("Wrong ID Replacement:" + tag);
                     response = response.replace(match, tag);
                 });
+                const correctMatches = response.matchAll(/[0-9]{18}/gm);
+                const uCorrectMatches = [...new Set(correctMatches)].forEach(match => {
+                    log.trace("Correct Regex:" + match);
+                    const tag = "<@" + match + ">";
+                    log.trace("Correct Regex Replacement:" + tag);
+                    response = response.replace(match, tag);
+                });
+                log.trace("Post-Regex: " + response);
                 message.channel.send(response);
             })
             .catch(error => log.warn(error));
