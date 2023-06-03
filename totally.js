@@ -97,10 +97,12 @@ client.on("messageCreate", async message => {
                 }).catch(response => log.error(response.response.data.error.message));
 
                 let response = completion.data.choices[0].message.content;
-
+                log.debug("Pre-Regex: " + response)
                 const matches = response.matchAll(/[0-9]{18}/gm);
                 const uniqueMatches = [...new Set(matches)].forEach(match => {
+                    log.debug("Regex:" + match);
                     const tag = "<@" + match + ">";
+                    log.debug("Regex Replacement:" + tag);
                     response = response.replace(match, tag);
                 });
                 message.channel.send(response);
