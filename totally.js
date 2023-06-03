@@ -101,17 +101,16 @@ client.on("messageCreate", async message => {
                 log.trace("Pre-Regex: " + response)
                 const wrongMatches = response.matchAll(/<@[0-9]{18}>/gm);
                 const uWrongMatches = [...new Set(wrongMatches)].forEach(match => {
-                    log.trace("Wrong ID:" + match);
-                    // remove first two characters and last character from match
-                    const tag = match.slice(2, -1);
-                    log.trace("Wrong ID Replacement:" + tag);
+                    log.trace("Wrong ID: " + match);
+                    const tag = `${match}`.slice(2, -1);
+                    log.trace("Wrong ID Replacement: " + tag);
                     response = response.replace(match, tag);
                 });
                 const correctMatches = response.matchAll(/[0-9]{18}/gm);
                 const uCorrectMatches = [...new Set(correctMatches)].forEach(match => {
-                    log.trace("Correct Regex:" + match);
-                    const tag = "<@" + match + ">";
-                    log.trace("Correct Regex Replacement:" + tag);
+                    log.trace("Correct Regex: " + match);
+                    const tag = "<@" + `${match}` + ">";
+                    log.trace("Correct Regex Replacement: " + tag);
                     response = response.replace(match, tag);
                 });
                 log.trace("Post-Regex: " + response);
