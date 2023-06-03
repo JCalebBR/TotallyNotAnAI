@@ -106,6 +106,13 @@ client.on("messageCreate", async message => {
                     log.trace("Wrong ID Replacement: " + tag);
                     response = response.replace(match, tag);
                 });
+                const wrongMatches_ = response.matchAll(/@[0-9]{18}/gm);
+                const uWrongMatches_ = [...new Set(wrongMatches_)].forEach(match => {
+                    log.trace("2nd Wrong ID: " + match);
+                    const tag = `${match}`.slice(1);
+                    log.trace("2nd Wrong ID Replacement: " + tag);
+                    response = response.replace(match, tag);
+                });
                 const correctMatches = response.matchAll(/[0-9]{18}/gm);
                 const uCorrectMatches = [...new Set(correctMatches)].forEach(match => {
                     log.trace("Correct Regex: " + match);
