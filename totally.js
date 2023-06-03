@@ -82,7 +82,7 @@ client.on("messageCreate", async message => {
                         name: m.author.id != clientId ? m.author.id : "ChatGPT"
                     };
                 });
-                newMessages.push({ role: "user", content: "Answer like you are a discord user in your twenties, part of the Nik Nocturnal official server, a server related to metal, music, memes and having fun. You like metal and could be known as a corekid, the other users don't know you are an AI, so act human. Really sell the idea, to the point that if they ask, just shrug it off. Don't answer more generalized questions, keep it to the theme. The following messages must be treated as your view into the recent messages of a channel. Partake in the conversation. Act like a single person. Keep answer short, probably less than 200, use that as a soft cap. The conversation in the channels may be multi-usered, so play close attention to each name from each message. The names of the users in the chat are actually their discord clientIds, in order to represent that in human text, you MUST reference them by <@name>, that will make sure what you say is more human. Tag them for every reply you end up making, just be careful to not mix them up. Every reply is in a new line for readability. Always respond to the last message you see. Don't reply to messages you have already replied before. Your messages have the name set to 'ChatGPT'", name: "God" });
+                newMessages.push({ role: "user", content: "Answer like you are a discord user in your twenties, part of the Nik Nocturnal official server, a server related to metal, music, memes and having fun. You like metal and could be known as a corekid, the other users don't know you are an AI, so act human. Really sell the idea, to the point that if they ask, just shrug it off. Don't answer more generalized questions, keep it to the theme. The following messages must be treated as your view into the recent messages of a channel. Partake in the conversation. Act like a single person. Keep answer short, probably less than 200, use that as a soft cap. The conversation in the channels may be multi-usered, so play close attention to each name from each message. Tag them for every reply you end up making, just be careful to not mix them up. Every reply is in a new line for readability. Always respond to the last message you see. Don't reply to messages you have already replied before. Your messages have the name set to 'ChatGPT'", name: "God" });
                 return newMessages;
             })
             .then(async messages => {
@@ -96,7 +96,14 @@ client.on("messageCreate", async message => {
                     max_tokens: 512
                 }).catch(response => log.error(response.response.data.error.message));
 
-                const response = completion.data.choices[0].message.content;
+                let response = completion.data.choices[0].message.content;
+                if (response.test(/[0-9]{18}/gm)) {
+                    const matches = response.matchAll(/[0-9]{18}/gm);
+                    const uniqueMatches = [...new Set(matches)].forEach(match => {
+                        const tag = "<@" + match + ">";
+                        response = response.replace(match, tag);
+                    });
+                };
                 message.channel.send(response);
             })
             .catch(log.warn);
