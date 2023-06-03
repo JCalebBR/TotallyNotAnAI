@@ -22,12 +22,12 @@ const client = new Client({
 // When the client is ready, run this code (only once)
 // We use "c" for the event parameter to keep it separate from the already defined "client"
 client.once(Events.ClientReady, c => {
-    console.info(`Ready! logged in as ${c.user.tag}`);
+    log.info(`Ready! logged in as ${c.user.tag}`);
 });
 
-client.on(Events.Debug, m => console.debug(m));
-client.on(Events.Warn, m => console.warn(m));
-client.on(Events.Error, m => console.error(m));
+client.on(Events.Debug, m => log.debug(m));
+client.on(Events.Warn, m => log.warn(m));
+client.on(Events.Error, m => log.error(m));
 
 client.commands = new Collection();
 
@@ -41,7 +41,7 @@ for (const file of commandFiles) {
     if ("data" in command && "execute" in command) {
         client.commands.set(command.data.name, command);
     } else {
-        console.warn(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+        log.warn(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
     };
 };
 
@@ -71,7 +71,7 @@ client.on("messageCreate", async message => {
     };
 
     if (interesting) {
-        console.info(`Interesting message: ${message.content}`);
+        log.info(`Interesting message: ${message.content}`);
         await message.channel.sendTyping();
         await message.channel.messages.fetch({ limit: 20, cache: false, around: message.id })
             .then(messages => {
@@ -87,26 +87,25 @@ client.on("messageCreate", async message => {
             })
             .then(async messages => {
                 messages.reverse();
-                console.info(messages);
+                log.info(messages);
                 const openai = new OpenAIApi(configuration);
                 const completion = await openai.createChatCompletion({
                     model: "gpt-4",
                     messages: messages,
                     temperature: 1,
                     max_tokens: 512
-                }).catch(response => console.error(response.response.data.error.message));
+                }).catch(response => log.error(response.response.data.error.message));
 
                 let response = completion.data.choices[0].message.content;
-                if (response.test(/[0-9]{18}/gm)) {
-                    const matches = response.matchAll(/[0-9]{18}/gm);
-                    const uniqueMatches = [...new Set(matches)].forEach(match => {
-                        const tag = "<@" + match + ">";
-                        response = response.replace(match, tag);
-                    });
-                };
+
+                const matches = response.matchAll(/[0-9]{18}/gm);
+                const uniqueMatches = [...new Set(matches)].forEach(match => {
+                    const tag = "<@" + match + ">";
+                    response = response.replace(match, tag);
+                });
                 message.channel.send(response);
             })
-            .catch(console.warn);
+            .catch(error => log.warn(error));
     };
 });
 
@@ -116,14 +115,14 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = interaction.client.commands.get(interaction.commandName);
 
     if (!command) {
-        console.error(`No command matching ${interaction.commandName} was found.`);
+        log.error(`No command matching ${interaction.commandName} was found.`);
         return;
     }
 
     try {
         await command.execute(interaction);
     } catch (error) {
-        console.error(error);
+        log.error(error);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
         } else {
